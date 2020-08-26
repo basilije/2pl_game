@@ -1,7 +1,7 @@
 #! /usr/bin/python3
 
 # Reaction Game
-# Author: Vasilije Mehandzic (still no comments, sorry)
+# Author: Vasilije Mehandzic
 
 import tty
 import sys
@@ -21,9 +21,6 @@ def getKey():
 def clearScreen():
 	os.system('clear')	
 	
-def ti(t):
-	return time.time()-t
-
 def keyDescription(kd):
 	knd = []
 	for kds in kd:
@@ -46,19 +43,9 @@ def keyDescription(kd):
 		if kds.upper() == "ESC":
 			knd.append('*** ESC - Step back')	
 	return knd
-	
-def currentPlayers(score=False):
-	to_return = []
-	if score:
-		for pl, sc in zip(current_players, current_scores):
-			to_return.append((pl, sc))
-	else:
-		for pl in current_players:
-			to_return.append((pl))
-	return to_return
 
-def currentPlayersAndScore():
-	printnClear(" >>> currentPlayersAndScore", True)
+def currentPlayersAndScores():
+	prn(" >>> Current Players And Scores <<< ", True)
 	co, sp = 1, ' '
 	for pl, sc in zip(current_players, current_scores):
 		if co>9:
@@ -78,50 +65,54 @@ def enterKeySequence():
 		print(name + "                             ", end='\r')
 	return name
 
-def printnClear(arg, clear = False):
+def prn(arg, clear = False):
 	try:
 		if clear:
 			clearScreen()
 		print(arg)
 	except Exception as ex:
-		print("Error printnClear ", ex.type(), ex.args)
+		print("Error prn ", type(ex), ex.args)
 		
 def addPlayer():
-	printnClear(" >>> addPlayer", True)
-	printnClear("player name?")
+	prn("   >>> Add Player <<<   ", True)
+	prn("player name?")
 	new_name = enterKeySequence()
 	new_name = new_name[0:len(new_name)-1]
 	current_players.append(new_name)
 	current_scores.append(99.99999)
-	printnClear(" just added")
+	prn(new_name + " just added.")
 	
 def removePlayer():
-	printnClear(" >>> removePlayer", True)
+	prn(" >>> removePlayer", True)
 	co = 1
 	for cp in current_players:
 		print(co, cp)
 		co += 1
-	printnClear(" which one?", False)
+	prn("  which one to delete? <please enter the number and press {enter}>", False)
 	which_player = enterKeySequence()
 	try:
 		wp = int(which_player)
 		if (wp <= len(current_players)) and (wp <= len(current_scores)):
-			current_players.remove(current_players[wp-1])	
-			current_scores.remove(current_scores[wp-1])	
-			printnClear(" just deleted", False)
+			player_to_remove = current_players[wp-1]
+			scores_to_remove = current_players[wp-1]
+			current_players.remove(player_to_remove)	
+			current_scores.remove(scores_to_remove)	
+			prn(player_to_remove + " just deleted.", False)
 	except Exception as ex:
-		print("Error removing player", ex.type(), ex.args)
+		print("Error removing player", type(ex), ex.args)
 
 def listPlayers():
+	prn("   >>> List of Players <<< ", True)
 	co = 1
 	for cp, cs in zip(current_players, current_scores):
 		print(co, cp, cs)
 		co += 1	
 
 def addRemovePlayers():
-	printnClear(" >>> addRemovePlayers", True)
+	prn("   >>> Add or Remove Players <<< ", True)
 	key = ' '
 	while ((ord(key) != 27) and (ord(key) != 10)):
+		clearScreen()
 		print()
 		for kd in (keyDescription(['+', '-', 'l', 'ESC'])):
 			print(kd)
@@ -134,7 +125,7 @@ def addRemovePlayers():
 			listPlayers()	
 	
 def topTenPlayers():
-	printnClear(' >>> topTenPlayers', True)
+	prn(' >>> topTenPlayers', True)
 	try:
 		all_ps = []
 		all_players, all_scores = load()		
@@ -152,36 +143,37 @@ def topTenPlayers():
 			co += 1		
 		print("__    ")
 	except Exception as ex:
-		print("Error @ top ten ", ex.type(), ex.args)
+		print("Error @ top ten ", type(ex), ex.args)
 			
-def randSleep(sleep=1):
-	return random.randint(1,1000)/1000
+def randSleep(sleep=1.5):
+	return random.randint(1,sleep*1000)/1000
 
 def startARound():
-	printnClear(' >>> startARound', True)
+	prn(' >>> startARound', True)
 	current_scores, co = [], 0
 	for pl in current_players:
 		clearScreen()
-		printnClear('  <<prepare>> ' + str(pl))	
+		prn('  <<prepare>> ' + str(pl))	
+		prn('  [[PRESS ENTER WHEN READY]] ')
 		wait()
-		printnClear('  <<<<get>>>> ' + str(pl))
+		prn('  <<<<get>>>> ' + str(pl))
 		time.sleep(randSleep())
-		printnClear('  <<<set>>> ' + str(pl))
+		prn('  <<<set>>> ' + str(pl))
 		time.sleep(randSleep())
-		printnClear('  << ready>> ' + str(pl))
+		prn('  <<ready>> ' + str(pl))
 		time.sleep(randSleep(2))
 		clearScreen()
 		time.sleep(randSleep(2))
 		ti=time.time()
-		printnClear('    GO    ')
+		prn('  [ GO ]  ')
 		key = getKey()
 		sc = time.time() - ti
-		printnClear("REACTION TIME: " + str(sc))
+		prn("REACTION TIME: " + str(sc))
 		current_scores.append(sc)
 		wait()
 
 def exitTheGame():
-	printnClear(' >>> exitTheGame', True)
+	prn(' >>> exitTheGame', True)
 	time.sleep(1)
 
 def fileToList(file_name):
@@ -197,7 +189,7 @@ def mainMenu(clear=True):
 	if clear:
 		clearScreen()
 	for kd in keyDescription(["A", "C", "T", "S", "E"]):
-		printnClear(kd)
+		prn(kd)
 
 def load():
 	all_players, all_scores = [], []
@@ -212,7 +204,7 @@ def save(players_file_name, scores_file_name, players, scores):
 	with open(scores_file_name, 'w') as file_handle:
 		for listitem in scores:
 			file_handle.write('%s\n' % listitem)
-	printnClear('just saved')
+	prn('just saved')
 	
 def wait(no_excuse_sleep=0):
 	time.sleep(no_excuse_sleep)
@@ -221,16 +213,15 @@ def wait(no_excuse_sleep=0):
 		key = getKey()
 		pr += '*'
 		print(pr, end='\r')
-	
-printnClear("---------------")
+
+
 players_file_name = 'players.txt'
 scores_file_name = 'scores.txt'
 all_players, all_scores = load()
-printnClear(all_players)
-printnClear(all_scores)
-printnClear("---------------")
+prn(all_players)
+prn(all_scores)
 current_players = []
-current_scores = []
+current_scores = []	
 
 key, tim = ' ', time.time()
 while key.upper()!="E":
@@ -240,7 +231,7 @@ while key.upper()!="E":
 		addRemovePlayers()
 		wait()
 	if key.upper()=="C":
-		currentPlayersAndScore()
+		currentPlayersAndScores()
 		wait()
 	if key.upper()=="T":
 		topTenPlayers()
