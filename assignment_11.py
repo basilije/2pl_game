@@ -75,7 +75,7 @@ def prn(arg, clear = False):
 		
 def addPlayer():
 	prn("   >>> Add Player <<<   ", True)
-	prn("player name?")
+	prn("Player Name?")
 	new_name = enterKeySequence()
 	new_name = new_name[0:len(new_name)-1]
 	current_players.append(new_name)
@@ -83,18 +83,18 @@ def addPlayer():
 	prn(new_name + " just added.")
 	
 def removePlayer():
-	prn(" >>> removePlayer", True)
+	prn("   >>> Remove Player <<<   ", True)
 	co = 1
 	for cp in current_players:
 		print(co, cp)
 		co += 1
-	prn("  which one to delete? <please enter the number and press {enter}>", False)
+	prn("  Which one to delete? <please enter the number and press {enter}>", False)
 	which_player = enterKeySequence()
 	try:
 		wp = int(which_player)
 		if (wp <= len(current_players)) and (wp <= len(current_scores)):
 			player_to_remove = current_players[wp-1]
-			scores_to_remove = current_players[wp-1]
+			scores_to_remove = scores_to_remove[wp-1]
 			current_players.remove(player_to_remove)	
 			current_scores.remove(scores_to_remove)	
 			prn(player_to_remove + " just deleted.", False)
@@ -111,21 +111,23 @@ def listPlayers():
 def addRemovePlayers():
 	prn("   >>> Add or Remove Players <<< ", True)
 	key = ' '
-	while ((ord(key) != 27) and (ord(key) != 10)):
+	while ((ord(key)!=27) and (ord(key)!=10)):
 		clearScreen()
 		print()
 		for kd in (keyDescription(['+', '-', 'l', 'ESC'])):
 			print(kd)
 		key = getKey()
+		print(key.upper())
 		if key.upper()=="+":
 			addPlayer()
 		if key.upper()=="-":	
 			removePlayer()	
 		if key.upper()=="L":	
 			listPlayers()	
+			wait()
 	
 def topTenPlayers():
-	prn(' >>> topTenPlayers', True)
+	prn('   >>> Top Ten Players <<<  ', True)
 	try:
 		all_ps = []
 		all_players, all_scores = load()		
@@ -139,41 +141,43 @@ def topTenPlayers():
 		for tt in top_ten:
 			if co>9:
 				sp = ''
-			print(sp,co, '. {:.5f}'.format(float(tt[1])), '&:} ', '  _________ ', tt[0])
+			print(sp,co, '. {:.8f}'.format(float(tt[1])), '  _________ ', tt[0])
 			co += 1		
 		print("__    ")
 	except Exception as ex:
 		print("Error @ top ten ", type(ex), ex.args)
 			
-def randSleep(sleep=1.5):
-	return random.randint(1,sleep*1000)/1000
+def randSleep(min_sleep=0.5, sleep=1.5):
+	if sleep < min_sleep:
+		sleep = min_sleep
+	return random.randint(1,(sleep-min_sleep)*1000)/1000
 
 def startARound():
-	prn(' >>> startARound', True)
+	prn('   >>> Start A Round <<<   aa', True)
 	current_scores, co = [], 0
 	for pl in current_players:
-		clearScreen()
-		prn('  <<prepare>> ' + str(pl))	
-		prn('  [[PRESS ENTER WHEN READY]] ')
+		prn(' Please <<prepare>> ' + str(pl), True)	
+		prn('  [[PRESS ENTER WHEN READY]]\n    get,set,ready,go are following')
 		wait()
-		prn('  <<<<get>>>> ' + str(pl))
+		prn('  <<<<get>>>> ' + str(pl), True)
 		time.sleep(randSleep())
-		prn('  <<<set>>> ' + str(pl))
+		prn('  <<<set>>> ' + str(pl), True)
 		time.sleep(randSleep())
-		prn('  <<ready>> ' + str(pl))
-		time.sleep(randSleep(2))
+		prn('  <<ready>> ' + str(pl), True)
+		time.sleep(randSleep(sleep=2))
 		clearScreen()
-		time.sleep(randSleep(2))
-		ti=time.time()
+		time.sleep(randSleep(sleep=2))
+		ti=  time.time()
 		prn('  [ GO ]  ')
 		key = getKey()
 		sc = time.time() - ti
 		prn("REACTION TIME: " + str(sc))
 		current_scores.append(sc)
 		wait()
+	return current_players, current_scores
 
 def exitTheGame():
-	prn(' >>> exitTheGame', True)
+	prn('   >>> Exit The Game <<<   ', True)
 	time.sleep(1)
 
 def fileToList(file_name):
@@ -237,7 +241,7 @@ while key.upper()!="E":
 		topTenPlayers()
 		wait()
 	if key.upper()=="S":
-		startARound()
+		current_players, current_scores = startARound()
 		wait()
 	
 for pl, sc in zip(current_players, current_scores):
