@@ -1,33 +1,26 @@
-# Author: Vasilije Mehandzic
-# ~ import tty
-# ~ import sys
-# ~ import termios
+#! /usr/bin/python3
 
-# ~ orig_settings = termios.tcgetattr(sys.stdin)
+# Reaction Game
+# Author: Vasilije Mehandzic (still no comments, sorry)
 
-# ~ tty.setcbreak(sys.stdin)
-# ~ x = 0
-# ~ while x != chr(27): # ESC
-    # ~ x=sys.stdin.read(1)[0]
-    # ~ print("You pressed", x)
-
-# ~ termios.tcsetattr(sys.stdin, termios.TCSADRAIN, orig_settings) 	
-
+import tty
+import sys
+import termios
 import time
 import os
 import random
 
-def clearScreen():
-	os.system('cls')# if os.name == 'nt' else 'clear')	
-	
 def getKey():
-	import msvcrt
+	orig_settings = termios.tcgetattr(sys.stdin)
+	tty.setcbreak(sys.stdin)	
 	key = ''
 	while key=='':
-		if msvcrt.kbhit():
-			key = msvcrt.getch()
-	return(key)   # just to show the result
+		key = sys.stdin.read(1)[0]
+	return(key)
 
+def clearScreen():
+	os.system('clear')	
+	
 def ti(t):
 	return time.time()-t
 
@@ -68,25 +61,15 @@ def currentPlayersAndScore():
 	printnClear(" >>> currentPlayersAndScore", True)
 	co, sp = 1, ' '
 	for pl, sc in zip(current_players, current_scores):
-		# ~ to_return.append((pl, sc))	
 		if co>9:
 			sp = ''
 		print(sp,co, '.', '{:.5f}'.format(sc), '  _________ ', pl)
 		co += 1
-		
-	# ~ cp = currentPlayers()
-	# ~ print(cp)
-	# ~ cp = currentPlayers(score=True)
-	# ~ print(cp)
-	# ~ wait(1)
-	
-def decodedKey():
-	return getKey().decode()	
-	
+
 def enterKeySequence():
 	key, name = ' ', ''
-	while (ord(key) != 13):
-		key = decodedKey()
+	while (ord(key) != 10):
+		key = getKey()
 		if (ord(key) != 8):
 			name += key
 		else:
@@ -138,11 +121,11 @@ def listPlayers():
 def addRemovePlayers():
 	printnClear(" >>> addRemovePlayers", True)
 	key = ' '
-	while (ord(key) != 27):
+	while ((ord(key) != 27) and (ord(key) != 10)):
 		print()
 		for kd in (keyDescription(['+', '-', 'l', 'ESC'])):
 			print(kd)
-		key = decodedKey()
+		key = getKey()
 		if key.upper()=="+":
 			addPlayer()
 		if key.upper()=="-":	
@@ -152,19 +135,25 @@ def addRemovePlayers():
 	
 def topTenPlayers():
 	printnClear(' >>> topTenPlayers', True)
-	all_ps = []
-	all_players, all_scores = load()
-	for apla, asco in zip(all_players, all_scores):
-		all_ps.append((apla, asco))
-	top_ten = sorted(all_ps, key=lambda x : x[1])[:10]
-	co = 1
-	sp = ' '
-	for tt in top_ten:
-		if co>9:
-			sp = ''
-		print(sp,co, '.', '{:.5f}'.format(float(tt[1])), '  _________ ', tt[0])
-		co += 1
-
+	try:
+		all_ps = []
+		all_players, all_scores = load()		
+		for apla, asco in zip(all_players, all_scores):
+			if (apla!='' and asco!=''):
+				all_ps.append((apla, asco))
+				
+		top_ten = sorted(all_ps, key=lambda x : x[1])[:10]	
+		print("__    ")
+		co,sp = 1, ' '		
+		for tt in top_ten:
+			if co>9:
+				sp = ''
+			print(sp,co, '. {:.5f}'.format(float(tt[1])), '&:} ', '  _________ ', tt[0])
+			co += 1		
+		print("__    ")
+	except Exception as ex:
+		print("Error @ top ten ", ex.type(), ex.args)
+			
 def randSleep(sleep=1):
 	return random.randint(1,1000)/1000
 
@@ -185,13 +174,12 @@ def startARound():
 		time.sleep(randSleep(2))
 		ti=time.time()
 		printnClear('    GO    ')
-		key = decodedKey()
+		key = getKey()
 		sc = time.time() - ti
 		printnClear("REACTION TIME: " + str(sc))
 		current_scores.append(sc)
 		wait()
 
-	
 def exitTheGame():
 	printnClear(' >>> exitTheGame', True)
 	time.sleep(1)
@@ -200,10 +188,9 @@ def fileToList(file_name):
 	the_list = []
 	if not(os.path.exists(file_name)):
 		open(file_name, 'w+').close()		
-	# open file and read the content in a list
 	with open(file_name, 'r') as file_handle:
 		for line in file_handle:			
-			the_list.append(line[:-1])	# remove linebreak which is the last character of the string and add item to the list		 
+			the_list.append(line[:-1])
 	return the_list
 
 def mainMenu(clear=True):
@@ -230,11 +217,10 @@ def save(players_file_name, scores_file_name, players, scores):
 def wait(no_excuse_sleep=0):
 	time.sleep(no_excuse_sleep)
 	key, pr = ' ', ''
-	while  ((ord(key) != 27) and (ord(key) != 13)):
-		key = decodedKey()
+	while  ((ord(key) != 27) and (ord(key) != 10)):
+		key = getKey()
 		pr += '*'
 		print(pr, end='\r')
-
 	
 printnClear("---------------")
 players_file_name = 'players.txt'
@@ -249,10 +235,7 @@ current_scores = []
 key, tim = ' ', time.time()
 while key.upper()!="E":
 	mainMenu()
-	key = decodedKey()
-	# ~ reaction_time = ti(tim)
-	# ~ print(ord(key), key, reaction_time)
-	# ~ tim=time.time()
+	key = getKey()
 	if key.upper()=="A":
 		addRemovePlayers()
 		wait()
@@ -266,9 +249,8 @@ while key.upper()!="E":
 		startARound()
 		wait()
 	
-	# ~ mainMenu()
-
 for pl, sc in zip(current_players, current_scores):
 	all_players.append(pl)
 	all_scores.append(sc)
+	
 save(players_file_name, scores_file_name, all_players, all_scores)
