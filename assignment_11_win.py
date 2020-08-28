@@ -9,7 +9,6 @@ import os
 import random
 import msvcrt
 
-
 def getKey():
 	import msvcrt
 	key = ''
