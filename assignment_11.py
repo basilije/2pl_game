@@ -16,7 +16,7 @@ def getKey():
 	key = ''
 	while key=='':
 		key = sys.stdin.read(1)[0]
-	return(key.decode())
+	return(key)
 
 def clearScreen():
 	os.system('clear')	
