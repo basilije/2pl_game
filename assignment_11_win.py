@@ -55,7 +55,7 @@ def currentPlayersAndScores():
 
 def enterKeySequence():
 	key, name = ' ', ''
-	while (ord(key) != 10):
+	while (ord(key) != 13):
 		key = getKey()
 		if (ord(key) != 8):
 			name += key
@@ -111,7 +111,7 @@ def listPlayers():
 def addRemovePlayers():
 	prn("   >>> Add or Remove Players <<< ", True)
 	key = ' '
-	while ((ord(key)!=27) and (ord(key)!=10)):
+	while ((ord(key)!=27) and (ord(key)!=13)):
 		clearScreen()
 		print()
 		for kd in (keyDescription(['+', '-', 'l', 'ESC'])):
@@ -213,7 +213,7 @@ def save(players_file_name, scores_file_name, players, scores):
 def wait(no_excuse_sleep=0):
 	time.sleep(no_excuse_sleep)
 	key, pr = ' ', ''
-	while  ((ord(key) != 27) and (ord(key) != 10)):
+	while  ((ord(key) != 27) and (ord(key) != 13)):
 		key = getKey()
 		pr += '*'
 		print(pr, end='\r')
