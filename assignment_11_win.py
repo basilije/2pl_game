@@ -15,7 +15,7 @@ def getKey():
 	while key=='':
 		if msvcrt.kbhit():
 			key = msvcrt.getch()
-	return(key) 
+	return(key.decode()) 
 
 def clearScreen():
 	os.system('cls')	
